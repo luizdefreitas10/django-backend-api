@@ -32,6 +32,9 @@ ALLOWED_HOSTS=['*']
 
 # Application definition
 
+# 4f5e48e5f6da43a26869c9dc2d75c4cef8250429 my token admin
+# 2485f2537a061cd94e4302bb0f7c74704649b8d1 token luizo
+
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
@@ -42,6 +45,8 @@ INSTALLED_APPS = [
 
     "django_filters",
     "rest_framework",
+    "rest_framework.authtoken",
+    
     "corsheaders",
 
     "cursos",
@@ -138,11 +143,22 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 #DRF
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
-        "rest_framework.authentication.SessionAuthentication",
+        # "rest_framework.authentication.SessionAuthentication",
+        "rest_framework.authentication.TokenAuthentication",
     ),
     "DEFAULT_PERMISSION_CLASSES": (
         "rest_framework.permissions.IsAuthenticatedOrReadOnly",
-    )
+    ),
+    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
+    "PAGE_SIZE": 10,
+    "DEFAULT_THROTTLE_CLASSES": (
+        "rest_framework.throttling.AnonRateThrottle",    
+        "rest_framework.throttling.UserRateThrottle",    
+    ),
+    "DEFAULT_THROTTLE_RATES": {
+        "anon": "5/minute", # second, day, month, year
+        "user": "10/minute",
+    }
 }
 
 CORS_ORIGIN_ALLOW_ALL = True

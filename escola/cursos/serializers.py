@@ -20,10 +20,28 @@ class AvaliacaoSerializer(serializers.ModelSerializer):
           "criacao",
           "ativo",
         )
+        
+    def validate_avaliacao(self, valor):
+        if valor in range(1, 6): # 1, 2, 3, 4, 5
+          return valor
+        raise serializers.ValidationError("The avaliation must be between 1 e 5")
 
 class CursoSerializer(serializers.ModelSerializer):
-
-    class Meta:
+  # nested relationships
+  # a lista pode ficar grande, este metodo deve ser pensado se vale a pen ou nao a depender do projeto:
+    # avaliacoes = AvaliacaoSerializer(many=True, read_only=True)
+    
+    # HyperLinked related field: 
+  """
+    avaliacoes = serializers.HyperlinkedRelatedField(many=True, read_only=True, view_name="avaliacao-detail")
+  """
+  
+  # primary key related field: 
+  avaliacoes = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
+  
+  media_avaliacoes = serializers.SerializerMethodField()
+    
+  class Meta:
         model = Curso
         fields = (
           "id",
@@ -31,5 +49,7 @@ class CursoSerializer(serializers.ModelSerializer):
           "url",
           "criacao",
           "ativo",
+          "avaliacoes",
+          "media_avaliacoes",
         )
         
