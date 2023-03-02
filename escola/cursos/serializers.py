@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from django.db.models import Avg
 
 from .models import Curso, Avaliacao
 
@@ -30,16 +31,16 @@ class CursoSerializer(serializers.ModelSerializer):
   # nested relationships
   # a lista pode ficar grande, este metodo deve ser pensado se vale a pen ou nao a depender do projeto:
     # avaliacoes = AvaliacaoSerializer(many=True, read_only=True)
-    
     # HyperLinked related field: 
   """
     avaliacoes = serializers.HyperlinkedRelatedField(many=True, read_only=True, view_name="avaliacao-detail")
   """
-  
   # primary key related field: 
-  avaliacoes = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
+  # avaliacoes = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
   
-  media_avaliacoes = serializers.SerializerMethodField()
+  # abordagem escolhida: hyperlinked related field
+  avaliacoes = serializers.HyperlinkedRelatedField(many=True, read_only=True, view_name="avaliacao-detail")
+  media_avaliacoes = serializers.SerializerMethodField() # o serializerMethodField requer que criemos um metodo. Este metodo deve iniciar, por padrao, com o nome def get_nome_do_atributo_que_vai_atualizar. Recebe o self e o obj. Sendo o obj o curso especifico
     
   class Meta:
         model = Curso
@@ -53,3 +54,10 @@ class CursoSerializer(serializers.ModelSerializer):
           "media_avaliacoes",
         )
         
+        
+  def get_media_avaliacoes(self, obj):
+    media = obj.avaliacoes.aggregate(Avg("avaliacao")).get("avaliacao__avg")
+
+    if media is None:
+      return 0
+    return round(media * 2) / 2 # o round retorna sempre um valor com 0.5 
